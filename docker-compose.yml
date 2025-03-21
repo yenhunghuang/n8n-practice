@@ -1,0 +1,17 @@
+services:
+    n8n:
+        image: n8nio/n8n
+        restart: always
+        ports:
+            - "5678:5678"
+        environment:
+            - N8N_BASIC_AUTH_ACTIVE=true
+            - N8N_BASIC_AUTH_USER=admin # 設定登入用戶名
+            - N8N_BASIC_AUTH_PASSWORD=admin123 # 設定登入密碼
+            - N8N_PROTOCOL=http
+            - N8N_HOST=n8n.local
+            - N8N_PORT=5678
+            - WEBHOOK_TUNNEL_URL=http://localhost:5678/
+            - GENERIC_TIMEZONE=Asia/Taipei # 設定時區
+        volumes:
+            - ~/.n8n:/home/node/.n8n # 持久化存儲
