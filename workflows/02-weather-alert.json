@@ -1,0 +1,167 @@
+{
+  "name": "天氣提醒工作流",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "expression": "*/3"
+            }
+          ]
+        }
+      },
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        250,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "url": "=https://api.openweathermap.org/data/2.5/weather?q=taipei&appid={{$node[\"Set API Key\"].json[\"apiKey\"]}}&units=metric",
+        "options": {}
+      },
+      "name": "Get Weather",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        650,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "apiKey",
+              "value": "YOUR_OPENWEATHERMAP_API_KEY"
+            }
+          ]
+        }
+      },
+      "name": "Set API Key",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        450,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "number": [
+            {
+              "value1": "={{$node[\"Get Weather\"].json[\"main\"][\"temp\"]}}",
+              "operation": "larger",
+              "value2": 30
+            }
+          ]
+        }
+      },
+      "name": "Check Temperature",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        850,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "message",
+              "value": "=🌡️ 台北現在溫度 {{$node[\"Get Weather\"].json[\"main\"][\"temp\"]}}°C，請注意防暑！"
+            }
+          ]
+        }
+      },
+      "name": "High Temp Alert",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1050,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "message",
+              "value": "=🌡️ 台北現在溫度 {{$node[\"Get Weather\"].json[\"main\"][\"temp\"]}}°C"
+            }
+          ]
+        }
+      },
+      "name": "Normal Temp",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1050,
+        400
+      ]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Set API Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set API Key": {
+      "main": [
+        [
+          {
+            "node": "Get Weather",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Weather": {
+      "main": [
+        [
+          {
+            "node": "Check Temperature",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Temperature": {
+      "main": [
+        [
+          {
+            "node": "High Temp Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Normal Temp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {},
+  "tags": [
+    "天氣",
+    "API",
+    "條件判斷"
+  ]
+}
