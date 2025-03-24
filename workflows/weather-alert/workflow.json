@@ -1,162 +1,162 @@
 {
-  "name": "天氣提醒工作流",
-  "nodes": [
-    {
-      "parameters": {
-        "rule": {
-          "interval": [
-            {
-              "field": "hours",
-              "hoursInterval": 3
-            }
-          ]
+    "name": "天氣提醒工作流",
+    "nodes": [
+        {
+            "parameters": {
+                "rule": {
+                    "interval": [
+                        {
+                            "field": "cronExpression",
+                            "expression": "* 0/3 * * *"
+                        }
+                    ]
+                }
+            },
+            "type": "n8n-nodes-base.scheduleTrigger",
+            "typeVersion": 1.2,
+            "position": [0, 0],
+            "id": "5c4f68d0-6115-49a3-a8db-1cabc08d4158",
+            "name": "Schedule Trigger"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "070c2a8f-dbaf-45de-b029-ff03e1525456",
+                            "name": "apiKey",
+                            "value": "YOUR_OPENWEATHERMAP_API_KEY",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [220, 0],
+            "id": "71a48fdf-1072-490a-a16a-200865df8aeb",
+            "name": "Edit Fields"
+        },
+        {
+            "parameters": {
+                "url": "=https://api.openweathermap.org/data/2.5/weather?q=taipei&appid={{$node[\"Edit Fields\"].json[\"apiKey\"]}}&units=metric",
+                "options": {}
+            },
+            "type": "n8n-nodes-base.httpRequest",
+            "typeVersion": 4.2,
+            "position": [440, 0],
+            "id": "f3a0b2a7-e8e5-4591-9bb8-1573c23a7b2f",
+            "name": "HTTP Request"
+        },
+        {
+            "parameters": {
+                "conditions": {
+                    "options": {
+                        "caseSensitive": true,
+                        "leftValue": "",
+                        "typeValidation": "strict",
+                        "version": 2
+                    },
+                    "conditions": [
+                        {
+                            "id": "86be765d-e72b-4621-a4a7-571e70528725",
+                            "leftValue": "={{$node[\"HTTP Request\"].json[\"main\"][\"temp\"]}}",
+                            "rightValue": 26,
+                            "operator": {
+                                "type": "number",
+                                "operation": "gt"
+                            }
+                        }
+                    ],
+                    "combinator": "and"
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.if",
+            "typeVersion": 2.2,
+            "position": [660, 0],
+            "id": "4a0167dc-ad95-4d96-987b-8eb3092add58",
+            "name": "If"
+        },
+        {
+            "parameters": {
+                "chatId": "YOUR_TELEGRAM_CHAT_ID",
+                "text": "={{ $json.message }}",
+                "additionalFields": {}
+            },
+            "type": "n8n-nodes-base.telegram",
+            "typeVersion": 1.2,
+            "position": [1260, -120],
+            "id": "34cfd6dc-a21e-4afc-922b-681268d2fa51",
+            "name": "Telegram"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "6e2d5782-c657-4dfa-9a8e-13d6cb01e856",
+                            "name": "message",
+                            "value": "=🌡️ 台北現在溫度 {{$node[\"HTTP Request\"].json[\"main\"][\"temp\"]}}°C，請注意防暑！",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [940, -200],
+            "id": "27d7a559-3f9e-44b7-bf16-6d0bdf47697d",
+            "name": "High Temp"
+        },
+        {
+            "parameters": {
+                "assignments": {
+                    "assignments": [
+                        {
+                            "id": "e639995a-2925-4287-a3b8-a8a9f58cdbe2",
+                            "name": "message",
+                            "value": "=🌡️ 台北現在溫度 {{$node[\"HTTP Request\"].json[\"main\"][\"temp\"]}}°C",
+                            "type": "string"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 3.4,
+            "position": [880, 100],
+            "id": "1a56f0f3-6b9c-457c-b018-c5bc60510bf6",
+            "name": "Low Temp"
         }
-      },
-      "type": "n8n-nodes-base.scheduleTrigger",
-      "typeVersion": 1.2,
-      "position": [0, 0],
-      "id": "5c4f68d0-6115-49a3-a8db-1cabc08d4158",
-      "name": "Schedule Trigger"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "070c2a8f-dbaf-45de-b029-ff03e1525456",
-              "name": "apiKey",
-              "value": "YOUR_OPENWEATHERMAP_API_KEY",
-              "type": "string"
-            }
-          ]
+    ],
+    "connections": {
+        "Schedule Trigger": {
+            "main": [[{ "node": "Edit Fields", "type": "main", "index": 0 }]]
         },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [220, 0],
-      "id": "71a48fdf-1072-490a-a16a-200865df8aeb",
-      "name": "Edit Fields"
-    },
-    {
-      "parameters": {
-        "url": "=https://api.openweathermap.org/data/2.5/weather?q=taipei&appid={{$node[\"Edit Fields\"].json[\"apiKey\"]}}&units=metric",
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.2,
-      "position": [440, 0],
-      "id": "f3a0b2a7-e8e5-4591-9bb8-1573c23a7b2f",
-      "name": "HTTP Request"
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "86be765d-e72b-4621-a4a7-571e70528725",
-              "leftValue": "={{$node[\"HTTP Request\"].json[\"main\"][\"temp\"]}}",
-              "rightValue": 26,
-              "operator": {
-                "type": "number",
-                "operation": "gt"
-              }
-            }
-          ],
-          "combinator": "and"
+        "Edit Fields": {
+            "main": [[{ "node": "HTTP Request", "type": "main", "index": 0 }]]
         },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [660, 0],
-      "id": "4a0167dc-ad95-4d96-987b-8eb3092add58",
-      "name": "If"
-    },
-    {
-      "parameters": {
-        "chatId": "YOUR_TELEGRAM_CHAT_ID",
-        "text": "={{ $json.message }}",
-        "additionalFields": {}
-      },
-      "type": "n8n-nodes-base.telegram",
-      "typeVersion": 1.2,
-      "position": [1260, -120],
-      "id": "34cfd6dc-a21e-4afc-922b-681268d2fa51",
-      "name": "Telegram"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "6e2d5782-c657-4dfa-9a8e-13d6cb01e856",
-              "name": "message",
-              "value": "=🌡️ 台北現在溫度 {{$node[\"HTTP Request\"].json[\"main\"][\"temp\"]}}°C，請注意防暑！",
-              "type": "string"
-            }
-          ]
+        "HTTP Request": {
+            "main": [[{ "node": "If", "type": "main", "index": 0 }]]
         },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [940, -200],
-      "id": "27d7a559-3f9e-44b7-bf16-6d0bdf47697d",
-      "name": "High Temp"
-    },
-    {
-      "parameters": {
-        "assignments": {
-          "assignments": [
-            {
-              "id": "e639995a-2925-4287-a3b8-a8a9f58cdbe2",
-              "name": "message",
-              "value": "=🌡️ 台北現在溫度 {{$node[\"HTTP Request\"].json[\"main\"][\"temp\"]}}°C",
-              "type": "string"
-            }
-          ]
+        "If": {
+            "main": [
+                [{ "node": "High Temp", "type": "main", "index": 0 }],
+                [{ "node": "Low Temp", "type": "main", "index": 0 }]
+            ]
         },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.set",
-      "typeVersion": 3.4,
-      "position": [880, 100],
-      "id": "1a56f0f3-6b9c-457c-b018-c5bc60510bf6",
-      "name": "Low Temp"
-    }
-  ],
-  "connections": {
-    "Schedule Trigger": {
-      "main": [[{"node": "Edit Fields", "type": "main", "index": 0}]]
+        "High Temp": {
+            "main": [[{ "node": "Telegram", "type": "main", "index": 0 }]]
+        },
+        "Low Temp": {
+            "main": [[{ "node": "Telegram", "type": "main", "index": 0 }]]
+        }
     },
-    "Edit Fields": {
-      "main": [[{"node": "HTTP Request", "type": "main", "index": 0}]]
+    "settings": {
+        "executionOrder": "v1"
     },
-    "HTTP Request": {
-      "main": [[{"node": "If", "type": "main", "index": 0}]]
-    },
-    "If": {
-      "main": [
-        [{"node": "High Temp", "type": "main", "index": 0}],
-        [{"node": "Low Temp", "type": "main", "index": 0}]
-      ]
-    },
-    "High Temp": {
-      "main": [[{"node": "Telegram", "type": "main", "index": 0}]]
-    },
-    "Low Temp": {
-      "main": [[{"node": "Telegram", "type": "main", "index": 0}]]
-    }
-  },
-  "settings": {
-    "executionOrder": "v1"
-  },
-  "tags": ["天氣提醒", "自動化", "Telegram"]
+    "tags": ["天氣提醒", "自動化", "Telegram"]
 }
